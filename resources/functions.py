@@ -1,8 +1,10 @@
 # functions.py
 
 from datetime import datetime, timedelta
+from typing import Union
 
 import discord
+from discord.utils import MISSING
 
 from database import errors
 from database import settings as settings_db
@@ -10,6 +12,16 @@ from resources import emojis, exceptions
 
 
 # --- Misc ---
+def await_coroutine(coro):
+    """Function to call a coroutine outside of an async function"""
+    while True:
+        try:
+            coro.send(None)
+        except StopIteration as error:
+            return error.value
+
+
+# --- Interaction handling ---
 async def get_interaction(message: discord.Message) -> discord.User:
     """Returns the interaction object if the message was triggered by a slash command. Returns None if no user was found."""
     if message.reference is not None:
@@ -19,10 +31,23 @@ async def get_interaction(message: discord.Message) -> discord.User:
             message = await message.channel.fetch_message(message.reference.message_id)
     return message.interaction
 
+
 async def get_interaction_user(message: discord.Message) -> discord.User:
     """Returns the user object if the message was triggered by a slash command. Returns None if no user was found."""
     interaction = await get_interaction(message)
     return interaction.user if interaction is not None else None
+
+
+async def edit_interaction(interaction: Union[discord.Interaction, discord.WebhookMessage], **kwargs) -> None:
+    """Edits a reponse. The response can either be an interaction OR a WebhookMessage"""
+    content = kwargs.get('content', MISSING)
+    embed = kwargs.get('embed', MISSING)
+    view = kwargs.get('view', MISSING)
+    file = kwargs.get('file', MISSING)
+    if isinstance(interaction, discord.WebhookMessage):
+        await interaction.edit(content=content, embed=embed, view=view)
+    else:
+        await interaction.edit_original_message(content=content, file=file, embed=embed, view=view)
 
 
 # --- Parsing ---
@@ -212,14 +237,7 @@ async def parse_timedelta_to_timestring(time_left: timedelta) -> str:
 # --- Message processing ---
 async def encode_text(text: str) -> str:
     """Encodes all unicode characters in a text in a way that is consistent on both Windows and Linux"""
-    text = (
-        text
-        .encode('unicode-escape',errors='ignore')
-        .decode('ASCII')
-        .replace('\\','')
-    )
-
-    return text
+    return text.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
 
 
 def encode_text_non_async(text: str) -> str:

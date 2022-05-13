@@ -40,7 +40,7 @@ class AdventureCog(commands.Cog):
                     except:
                         try:
                             user_name = re.search("^(.+?)'s cooldown", message_author).group(1)
-                            user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            user_name = await functions.encode_text(user_name)
                         except Exception as error:
                             await message.add_reaction(emojis.WARNING)
                             await errors.log_error(f'User not found in adventure cooldown message: {message.embeds[0].fields}')
@@ -49,7 +49,7 @@ class AdventureCog(commands.Cog):
                         user = await message.guild.fetch_member(user_id)
                     else:
                         for member in message.guild.members:
-                            member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            member_name = await functions.encode_text(member.name)
                             if member_name == user_name:
                                 user = member
                                 break
@@ -112,13 +112,13 @@ class AdventureCog(commands.Cog):
                     user_name = None
                     try:
                         user_name = re.search("^\*\*(.+?)\*\* found a", message_content).group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in adventure message: {message_content}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break

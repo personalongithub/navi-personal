@@ -98,9 +98,9 @@ class TrackingCog(commands.Cog):
                     except Exception as error:
                         await errors.log_error(f'Error while reading user name from time travel message:\n{error}')
                         return
-                    user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                    user_name = await functions.encode_text(user_name)
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break

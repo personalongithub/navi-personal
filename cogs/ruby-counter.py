@@ -37,14 +37,14 @@ class RubyCounterCog(commands.Cog):
                         search_string = "\*\*(.+?)\*\*"
                         user_name = re.search(search_string, message_field).group(1)
                         if user_name == 'EPIC NPC': user_name = re.search(search_string, message_field).group(2)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in trade message for ruby counter: {message.embeds[0].fields}')
                         return
 
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break
@@ -84,7 +84,7 @@ class RubyCounterCog(commands.Cog):
                     except:
                         try:
                             user_name = re.search("^(.+?)'s lootbox", message_author).group(1)
-                            user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            user_name = await functions.encode_text(user_name)
                         except Exception as error:
                             await message.add_reaction(emojis.WARNING)
                             await errors.log_error(f'User not found in lootbox message for ruby counter: {message.embeds[0].fields}')
@@ -93,7 +93,7 @@ class RubyCounterCog(commands.Cog):
                         user = await message.guild.fetch_member(user_id)
                     else:
                         for member in message.guild.members:
-                            member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            member_name = await functions.encode_text(member.name)
                             if member_name == user_name:
                                 user = member
                                 break
@@ -130,7 +130,7 @@ class RubyCounterCog(commands.Cog):
                     except:
                         try:
                             user_name = re.search("^(.+?)'s inventory", message_author).group(1)
-                            user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            user_name = await functions.encode_text(user_name)
                         except Exception as error:
                             await message.add_reaction(emojis.WARNING)
                             await errors.log_error(f'User not found in inventory message for ruby counter: {message.embeds[0].fields}')
@@ -139,7 +139,7 @@ class RubyCounterCog(commands.Cog):
                         user = await message.guild.fetch_member(user_id)
                     else:
                         for member in message.guild.members:
-                            member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            member_name = await functions.encode_text(member.name)
                             if member_name == user_name:
                                 user = member
                                 break
@@ -178,13 +178,13 @@ class RubyCounterCog(commands.Cog):
                 if user is None:
                     try:
                         user_name = re.search("^\*\*(.+?)\*\* ", message_content).group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in ruby training helper message for ruby counter: {message_content}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break
@@ -214,13 +214,13 @@ class RubyCounterCog(commands.Cog):
                 if user is None:
                     try:
                         user_name = re.search("\*\*(.+?)\*\* got", message_content, re.IGNORECASE).group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in work message for ruby counter: {message_content}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break

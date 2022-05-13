@@ -41,7 +41,7 @@ class CooldownsCog(commands.Cog):
             except:
                 try:
                     user_name = re.search("^(.+?)'s cooldowns", message_author).group(1)
-                    user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                    user_name = await functions.encode_text(user_name)
                 except Exception as error:
                     await message.add_reaction(emojis.WARNING)
                     await errors.log_error(f'User not found in cooldown message: {message.embeds[0].fields}')
@@ -50,7 +50,7 @@ class CooldownsCog(commands.Cog):
                 user = await message.guild.fetch_member(user_id)
             else:
                 for member in message.guild.members:
-                    member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                    member_name = await functions.encode_text(member.name)
                     if member_name == user_name:
                         user = member
                         break

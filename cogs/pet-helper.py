@@ -75,13 +75,13 @@ class PetHelperCog(commands.Cog):
                         if user_name_search is None:
                             user_name_search = re.search("^(.+?)'s bunny", message_author)
                         user_name = user_name_search.group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in pet catch message for pet helper: {message.embeds[0].fields}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break

@@ -4,10 +4,13 @@
 from datetime import datetime
 
 import discord
+from discord.commands import slash_command
 from discord.ext import commands
 from discord.ext.commands import errors
 
+from content import main
 from database import errors, guilds, users
+from database import settings as settings_db
 from resources import emojis, exceptions, logs, settings
 
 
@@ -17,70 +20,68 @@ class MainCog(commands.Cog):
         self.bot = bot
 
     # Commands
-    @commands.command(name='help', aliases=('h',))
-    @commands.bot_has_permissions(send_messages=True, embed_links=True, read_message_history=True)
-    async def main_help(self, ctx: commands.Context) -> None:
+    @slash_command(description='Main help command')
+    async def help(self, ctx: discord.ApplicationContext) -> None:
         """Main help command"""
-        if ctx.prefix.lower() == 'rpg ':
-            return
-        embed = await embed_main_help(ctx)
-        await ctx.reply(embed=embed)
+        await main.command_help(ctx)
 
-    @commands.command(aliases=('ping','info'))
-    async def about(self, ctx: commands.Context) -> None:
-        """Shows some info about Tatl"""
-        if ctx.prefix.lower() == 'rpg ':
-            return
-        start_time = datetime.utcnow()
-        message = await ctx.send('Testing API latency...')
-        end_time = datetime.utcnow()
-        api_latency = end_time - start_time
-        embed = await embed_about(self.bot, api_latency)
-        await message.edit(content=None, embed=embed)
-
+    @slash_command(description='Some info about Navi')
+    async def about(self, ctx: discord.ApplicationContext) -> None:
+        """About command"""
+        await main.command_about(self.bot, ctx)
 
      # Events
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: Exception) -> None:
+    async def on_application_command_error(self, ctx: discord.ApplicationContext, error: Exception) -> None:
         """Runs when an error occurs and handles them accordingly.
         Interesting errors get written to the database for further review.
         """
+        command_name = f'{ctx.command.full_parent_name} {ctx.command.name}'.strip()
         async def send_error() -> None:
             """Sends error message as embed"""
             embed = discord.Embed(title='An error occured')
-            embed.add_field(name='Command', value=f'`{ctx.command.qualified_name}`', inline=False)
+            embed.add_field(name='Command', value=f'`{command_name}`', inline=False)
             embed.add_field(name='Error', value=f'```py\n{error}\n```', inline=False)
-            await ctx.reply(embed=embed)
+            await ctx.respond(embed=embed, ephemeral=True)
 
         error = getattr(error, 'original', error)
-        if isinstance(error, (commands.CommandNotFound, commands.NotOwner)):
-            return
-        elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.reply(
-                f'**{ctx.author.name}**, you can only use this command every '
-                f'{int(error.cooldown.per)} seconds.\n'
-                f'You have to wait another **{error.retry_after:.1f}s**.'
-            )
-        elif isinstance(error, commands.DisabledCommand):
-            await ctx.reply(f'Command `{ctx.command.qualified_name}` is temporarily disabled.')
+        if isinstance(error, commands.NoPrivateMessage):
+            if ctx.guild_id is None:
+                await ctx.respond(
+                    f'I\'m sorry, this command is not available in DMs.',
+                    ephemeral=True
+                )
+            else:
+                await ctx.respond(
+                    f'I\'m sorry, this command is not available in this server.',
+                    ephemeral=True
+                )
         elif isinstance(error, (commands.MissingPermissions, commands.MissingRequiredArgument,
                                 commands.TooManyArguments, commands.BadArgument)):
             await send_error()
         elif isinstance(error, commands.BotMissingPermissions):
-            if 'send_messages' in error.missing_permissions:
-                return
-            if 'embed_links' in error.missing_perms:
-                await ctx.replay(error)
-            else:
-                await send_error()
+            await ctx.respond(
+                f'You can\'t use this command in this channel.\n'
+                f'To enable this, I need the permission `View Channel` / '
+                f'`Read Messages` in this channel.',
+                ephemeral=True
+            )
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.respond(
+                f'**{ctx.author.name}**, you can only use this command every '
+                f'{int(error.cooldown.per)} seconds.\n'
+                f'You have to wait another **{error.retry_after:.1f}s**.',
+                ephemeral=True
+            )
         elif isinstance(error, exceptions.FirstTimeUserError):
-            await ctx.reply(
+            await ctx.respond(
                 f'**{ctx.author.name}**, looks like I don\'t know you yet.\n'
-                f'Use `{ctx.prefix}on` to activate me first.'
+                f'Use `/enable` to activate me first.',
+                ephemeral=True
             )
         else:
             await errors.log_error(error, ctx)
-            await send_error()
+            if settings.DEBUG_MODE or ctx.author.id in settings.DEV_IDS: await send_error()
 
 
     # Events

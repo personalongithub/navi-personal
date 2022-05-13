@@ -40,7 +40,7 @@ class FarmCog(commands.Cog):
                     except:
                         try:
                             user_name = re.search("^(.+?)'s cooldown", message_author).group(1)
-                            user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            user_name = await functions.encode_text(user_name)
                         except Exception as error:
                             await message.add_reaction(emojis.WARNING)
                             await errors.log_error(f'User not found in farm cooldown message: {message.embeds[0].fields}')
@@ -49,7 +49,7 @@ class FarmCog(commands.Cog):
                         user = await message.guild.fetch_member(user_id)
                     else:
                         for member in message.guild.members:
-                            member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                            member_name = await functions.encode_text(member.name)
                             if member_name == user_name:
                                 user = member
                                 break
@@ -102,13 +102,13 @@ class FarmCog(commands.Cog):
                 if user is None:
                     try:
                         user_name = re.search("^\*\*(.+?)\*\* plants", message_content).group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in farm message: {message_content}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break
@@ -172,13 +172,13 @@ class FarmCog(commands.Cog):
                 else:
                     try:
                         user_name = re.search("\*\*(.+?)\*\*", message_content).group(1)
-                        user_name = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        user_name = await functions.encode_text(user_name)
                     except Exception as error:
                         await message.add_reaction(emojis.WARNING)
                         await errors.log_error(f'User not found in farm event message: {message_content}')
                         return
                     for member in message.guild.members:
-                        member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                        member_name = await functions.encode_text(member.name)
                         if member_name == user_name:
                             user = member
                             break

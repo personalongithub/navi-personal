@@ -28,7 +28,7 @@ class HealWarningCog(commands.Cog):
                 user_name_search = re.search("\*\*(.+?)\*\* and \*\*(.+?)\*\*", message_content)
                 user_name = user_name_search.group(1)
                 partner_name = user_name_search.group(2)
-                user_name_encoded = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                user_name_encoded = await functions.encode_text(user_name)
             except Exception as error:
                 await message.add_reaction(emojis.WARNING)
                 await errors.log_error(
@@ -38,7 +38,7 @@ class HealWarningCog(commands.Cog):
             user = await functions.get_interaction_user(message)
             if user is None:
                 for member in message.guild.members:
-                    member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                    member_name = await functions.encode_text(member.name)
                     if member_name == user_name_encoded:
                         user = member
                         break
@@ -89,7 +89,7 @@ class HealWarningCog(commands.Cog):
             try:
                 user_name_search = re.search("^\*\*(.+?)\*\* ", message_content)
                 user_name = user_name_search.group(1)
-                user_name_encoded = user_name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                user_name_encoded = await functions.encode_text(user_name)
             except Exception as error:
                 await message.add_reaction(emojis.WARNING)
                 await errors.log_error(f'User not found in hunt/adventure message for heal warning: {message_content}')
@@ -97,7 +97,7 @@ class HealWarningCog(commands.Cog):
             user = await functions.get_interaction_user(message)
             if user is None:
                 for member in message.guild.members:
-                    member_name = member.name.encode('unicode-escape',errors='ignore').decode('ASCII').replace('\\','')
+                    member_name = await functions.encode_text(member.name)
                     if member_name == user_name_encoded:
                         user = member
                         break
