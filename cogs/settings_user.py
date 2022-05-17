@@ -5,8 +5,10 @@ import asyncio
 from datetime import datetime, timedelta
 
 import discord
+from discord.commands import slash_command, Option
 from discord.ext import commands
 
+from content import settings_user
 from database import clans, reminders, users
 from resources import emojis, functions, exceptions, settings, strings
 
@@ -16,13 +18,15 @@ class SettingsUserCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(aliases=('me',))
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    async def settings(self, ctx: commands.Context) -> None:
-        """Returns current user progress settings"""
-        if ctx.prefix.lower() == 'rpg ': return
-        embed = await embed_user_settings(self.bot, ctx)
-        await ctx.reply(embed=embed)
+    @slash_command(description='Shows the current settings')
+    async def settings(
+        self,
+        ctx: discord.ApplicationContext,
+        settings: Option(str, 'The settings you want to view',
+                      choices=settings_user.SETTINGS, default=settings_user.SETTING_USER),
+    ) -> None:
+        """Returns current user settings"""
+        await settings_user.command_settings(self.bot, ctx, settings)
 
     @commands.command(name='list')
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
@@ -112,7 +116,7 @@ class SettingsUserCog(commands.Cog):
                 time_left = reminder.end_time - current_time
                 timestring = await functions.parse_timedelta_to_timestring(time_left)
                 activity = 'Dungeon / Miniboss' if reminder.activity == 'dungeon-miniboss' else reminder.activity
-                activity = activity.replace('-',' ').title()
+                activity = activity.replace('-',' ').capitalize()
                 field_command_reminders = (
                     f'{field_command_reminders}\n'
                     f'{emojis.BP} **`{activity}`** (**{timestring}**)'

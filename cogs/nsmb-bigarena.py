@@ -22,7 +22,7 @@ class NotSoMiniBossBigArenaCog(commands.Cog):
         if message.embeds: return
         message_content = message.content
         if ('successfully registered for the next **big arena** event!' in message_content.lower()
-            or 'successfully registered for the next **not so "mini" boss** event!' in message_content.lower()
+            or 'successfully registered for the next **minin\'tboss** event!' in message_content.lower()
             or 'you are already registered!' in message_content.lower()):
             user_name = None
             user = await functions.get_interaction_user(message)
@@ -62,7 +62,7 @@ class NotSoMiniBossBigArenaCog(commands.Cog):
                 for msg in message_history:
                     if msg.content is not None:
                         if ((msg.content.lower().startswith('rpg ')
-                            and 'big arena join' in msg.content.lower() or 'not so mini boss join' in msg.content.lower())
+                            and 'big arena join' in msg.content.lower() or 'minintboss join' in msg.content.lower())
                             and msg.author == user):
                             user_command_message = msg
                             break
@@ -71,10 +71,10 @@ class NotSoMiniBossBigArenaCog(commands.Cog):
                     await errors.log_error('Couldn\'t find a command for the big-arena or not-so-mini-boss message.')
                     return
                 user_command = user_command_message.content.lower()
-            if ' not so mini ' in user_command or 'minint' in user_command:
+            if 'minint' in user_command:
                 if not user_settings.alert_not_so_mini_boss.enabled: return
-                event = 'not-so-mini-boss'
-                reminder_message = user_settings.alert_not_so_mini_boss.message.replace('{event}', event.replace('-',' '))
+                event = 'minin\'tboss'
+                reminder_message = user_settings.alert_not_so_mini_boss.message.replace('{event}', event)
             else:
                 if not user_settings.alert_big_arena.enabled: return
                 event = 'big-arena'
