@@ -5,11 +5,9 @@ import os
 import sqlite3
 from typing import NamedTuple
 
-from dotenv import load_dotenv
 
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.environ['DISCORD_TOKEN']
 DEBUG_MODE = True if os.getenv('DEBUG_MODE') == 'ON' else False
 
 BOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
